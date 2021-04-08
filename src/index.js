@@ -38,5 +38,10 @@ let dogBreedList = () => {
 let getListItem = string => {
     let li = document.createElement('li');
     li.innerText = string;
+    li.addEventListener("click", event => {
+        event.target.style.color = "blue";
+        console.dir(event.target)
+    })
+
     return li;
 }
