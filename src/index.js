@@ -1,8 +1,14 @@
 console.log('%c HI', 'color: firebrick')
 
+let dogBreeds;
+
 document.addEventListener("DOMContentLoaded", event => {
     randomDogImages();
-    dogBreedList();
+    dogBreeds = fetchDogBreedList();
+
+    let dropdown = document.getElementById("breed-dropdown");
+    dropdown.value = ""; // initially clear the value of the dropdown
+    dropdown.addEventListener("change", dropdownHandler);
 })
 
 let randomDogImages = () => {
@@ -18,21 +24,31 @@ let randomDogImages = () => {
     })
 }
 
-let dogBreedList = () => {
+let fetchDogBreedList = () => {
+    let breeds = [];
     fetch('https://dog.ceo/api/breeds/list/all')
     .then(response => response.json())
     .then(json => {
-        let breedList = document.getElementById("dog-breeds");
         for (breed in json.message) {
             if (json.message[breed].length === 0) {
-                breedList.appendChild(getListItem(breed));
+                breeds.push(breed);
             } else {
                 for (breedPrefix of json.message[breed]) {
-                    breedList.appendChild(getListItem(`${breedPrefix} ${breed}`))
+                    breeds.push(`${breedPrefix} ${breed}`);
                 }
             }
         }
-    })
+        renderDogBreedList(breeds);
+    });
+    return breeds;
+}
+
+let renderDogBreedList = breeds => {
+    let breedListElement = document.getElementById("dog-breeds");
+    breedListElement.textContent = ''; // MDN says textContent is faster than innerHTML, either way delete the children
+    for (breed of breeds) {
+        breedListElement.appendChild(getListItem(breed));
+    }
 }
 
 let getListItem = string => {
@@ -40,8 +56,16 @@ let getListItem = string => {
     li.innerText = string;
     li.addEventListener("click", event => {
         event.target.style.color = "blue";
-        console.dir(event.target)
     })
 
     return li;
 }
+
+let dropdownHandler = event => {
+    renderDogBreedList(dogBreedList.filter(breed => {
+        return breed[0] === event.target.value;
+    }))
+}
+
+
+const dogBreedList = fetchDogBreedList();
